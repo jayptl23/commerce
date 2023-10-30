@@ -1,0 +1,6 @@
+venv/
+static/
+migrations/
+
+
+db.sqlite3
