@@ -16,6 +16,6 @@ class Category(models.Model):
 class Listing(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
-    image_url = models.URLField()
+    image_url = models.URLField(null=True, blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="listings")
