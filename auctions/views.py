@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from auctions.forms import ListingForm
 
-from .models import User, Listing
+from .models import User, Listing, Category
 
 
 def index(request):
@@ -78,3 +78,12 @@ def create_listing_view(request):
             return render(request, "auctions/create-listing.html", {"form": form})
     else:
         return render(request, "auctions/create-listing.html", {"form": ListingForm()})
+
+def categories(request):
+    categories = Category.objects.all()
+    return render(request, "auctions/categories.html", {"categories": categories })
+
+def listings_by_category(request, category):
+    listings = Listing.objects.filter(category=category)
+    print(listings)
+    return render(request, "auctions/listings-by-category.html", { "listings": listings })
