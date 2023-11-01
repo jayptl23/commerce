@@ -5,7 +5,10 @@ from .models import Listing, Category
 class ListingForm(forms.ModelForm):
     class Meta():
         model = Listing
-        fields = ["title", "description", "image_url", "category"]
+        # fields = ["title", "description",
+        #           "image_url", "category"]
+        
+        fields = "__all__"
 
         labels = {"image_url": "Image URL"}
 
