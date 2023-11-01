@@ -1,0 +1,9 @@
+<div>
+    <h3>{{ listing.title }}</h3>
+    <span>Category: {{ listing.category }}</span>
+    <p>Price: ${{ listing.price }}</p>
+    <p>{{ listing.description }}</p>
+    {% if listing.image_url %}
+    <img src="{{ listing.image_url }}" alt="Image of item up for auction." />
+    {% endif %}
+</div>
