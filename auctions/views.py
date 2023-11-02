@@ -85,5 +85,8 @@ def categories(request):
 
 def listings_by_category(request, category):
     listings = Listing.objects.filter(category=category)
-    print(listings)
     return render(request, "auctions/listings-by-category.html", { "listings": listings })
+
+def listing(request, id):
+    listing = Listing.objects.filter(pk=id).first()
+    return render(request, "auctions/listing-details.html", { "listing": listing })
