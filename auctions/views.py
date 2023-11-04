@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from auctions.forms import ListingForm
 
@@ -89,4 +89,35 @@ def listings_by_category(request, category):
 
 def listing(request, id):
     listing = Listing.objects.filter(pk=id).first()
-    return render(request, "auctions/listing-details.html", { "listing": listing })
+
+    if not request.user.is_authenticated:
+        return render(request, "auctions/listing-details.html", { "listing": listing })
+    
+    user = User.objects.get(username=request.user.username)
+    has_listing_in_watchlist = user.watchlist.filter(pk=id).exists()
+    print("has listing in watchlist?", has_listing_in_watchlist)
+
+    return render(request, "auctions/listing-details.html", { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist })
+
+def add_to_watchlist(request, user_id, listing_id):
+    if request.user.is_authenticated:
+        user = User.objects.get(pk=int(user_id))
+        listing = Listing.objects.get(pk=int(listing_id))
+        user.watchlist.add(listing)
+        return HttpResponseRedirect(reverse("listing", kwargs={ "id": listing.id }))
+    return redirect("index")
+
+def remove_from_watchlist(request, user_id, listing_id):
+    if request.user.is_authenticated:
+        user = User.objects.get(pk=int(user_id))
+        listing = Listing.objects.get(pk=int(listing_id))
+        user.watchlist.remove(listing)
+        return HttpResponseRedirect(reverse("listing", kwargs={ "id": listing.id }))
+    return redirect("index")
+
+def watchlist(request, user_id):
+    if request.user.is_authenticated:
+        user = User.objects.get(pk=int(user_id))
+        listings = user.watchlist.all()
+        
+    return render(request, "auctions/watchlist.html", { "listings": listings })

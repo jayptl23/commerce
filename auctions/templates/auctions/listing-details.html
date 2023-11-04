@@ -1,6 +1,13 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+{% if user.is_authenticated %}
+{% if has_listing_in_watchlist %}
+<a href="{% url 'remove_from_watchlist' user.id listing.id %}">Remove from watchlist</a>
+{% else %}
+<a href="{% url 'add_to_watchlist' user.id listing.id %}">Add to watchlist</a>
+{% endif %}
+{% endif %}
 <div>
     <h3>{{ listing.title }}</h3>
     <span>Category: {{ listing.category }}</span>

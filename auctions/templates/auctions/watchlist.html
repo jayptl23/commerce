@@ -1,0 +1,10 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2>Watchlist</h2>
+{% for listing in listings %}
+{% include "auctions/listing.html" %}
+{% empty %}
+<p>No listings.</p>
+{% endfor %}
+{% endblock %}
