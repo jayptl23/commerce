@@ -1,5 +1,5 @@
 from django import forms
-from .models import Listing, Category
+from .models import Listing, Category, Bid
 
 
 class ListingForm(forms.ModelForm):
@@ -17,3 +17,8 @@ class ListingForm(forms.ModelForm):
         queryset=Category.objects.all(),
         empty_label=None
     )
+
+class BidForm(forms.ModelForm):
+    class Meta():
+        model = Bid
+        fields = ["amount"]

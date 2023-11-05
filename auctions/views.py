@@ -3,9 +3,10 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from auctions.forms import ListingForm
+from auctions.forms import ListingForm, BidForm
 
-from .models import User, Listing, Category
+from django.db.models import Max
+from .models import User, Listing, Category, Bid
 
 
 def index(request):
@@ -89,15 +90,56 @@ def listings_by_category(request, category):
 
 def listing(request, id):
     listing = Listing.objects.filter(pk=id).first()
-
     if not request.user.is_authenticated:
         return render(request, "auctions/listing-details.html", { "listing": listing })
-    
+
     user = User.objects.get(username=request.user.username)
     has_listing_in_watchlist = user.watchlist.filter(pk=id).exists()
-    print("has listing in watchlist?", has_listing_in_watchlist)
+    bids = Bid.objects.filter(listing=listing)
+    max_bid_amount = bids.aggregate(Max('amount'))['amount__max']
 
-    return render(request, "auctions/listing-details.html", { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist })
+    max_bid_instance = bids.filter(amount = max_bid_amount).first()
+
+
+    
+    if request.method == "POST":
+        form = BidForm(request.POST)        
+        if form.is_valid():
+            data = form.cleaned_data
+            bid_amount = data["amount"]
+
+            print("number of bids", bids.count())
+            print("curr max bid", max_bid_amount)
+
+            if max_bid_amount:
+                if bid_amount > max_bid_amount:
+                    bid = Bid(amount=bid_amount, bidder=user, listing=listing)
+                    bid.save()
+                    return HttpResponseRedirect(reverse("listing", kwargs={ "id": id }))
+                else:
+                    error = "Your bid doesn't beat the largest bid."
+                    return render(request, 
+                           "auctions/listing-details.html", 
+                           { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form, "error": error }
+                        )
+            else:
+                if bid_amount > listing.price:
+                    bid = Bid(amount=bid_amount, bidder=user, listing=listing)
+                    bid.save()
+                    return HttpResponseRedirect(reverse("listing", kwargs={ "id": id }))
+                else:
+                    error = "Please enter a bid greater than the starting price."
+                    return render(request, 
+                           "auctions/listing-details.html", 
+                           { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form, "error": error }
+                        )
+        else:
+            return render(request, "auctions/listing-details.html", { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form })
+
+    is_highest_bidder = False
+    if max_bid_instance:
+        is_highest_bidder = user.id == max_bid_instance.bidder.id
+    return render(request, "auctions/listing-details.html", { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": BidForm() })
 
 def add_to_watchlist(request, user_id, listing_id):
     if request.user.is_authenticated:

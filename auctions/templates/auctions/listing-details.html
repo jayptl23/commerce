@@ -11,10 +11,31 @@
 <div>
     <h3>{{ listing.title }}</h3>
     <span>Category: {{ listing.category }}</span>
-    <p>Price: ${{ listing.price }}</p>
     <p>{{ listing.description }}</p>
     {% if listing.image_url %}
     <img src="{{ listing.image_url }}" alt="Image of item up for auction." />
+    {% endif %}
+
+    {% if bid %}
+    <p>Current bid: ${{ bid }}</p>
+    {% endif %}
+
+    {% if is_highest_bidder %}
+    <p>You are the highest bidder</p>
+    {% endif %}
+
+    <p>Starting price: ${{ listing.price }}</p>
+
+    {% if user.is_authenticated %}
+    <h3>Make a bid</h3>
+    <form method="post">
+        {% csrf_token %}
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+        {{ bid_form }}
+        <input type="submit" value="Place bid">
+    </form>
     {% endif %}
 </div>
 {% endblock %}
