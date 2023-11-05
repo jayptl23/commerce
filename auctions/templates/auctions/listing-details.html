@@ -26,7 +26,7 @@
 
     <p>Starting price: ${{ listing.price }}</p>
 
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and user.id != listing.owner.id %}
     <h3>Make a bid</h3>
     <form method="post">
         {% csrf_token %}

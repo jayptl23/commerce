@@ -99,8 +99,6 @@ def listing(request, id):
     max_bid_amount = bids.aggregate(Max('amount'))['amount__max']
 
     max_bid_instance = bids.filter(amount = max_bid_amount).first()
-
-
     
     if request.method == "POST":
         form = BidForm(request.POST)        

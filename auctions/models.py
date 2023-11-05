@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -16,6 +17,7 @@ class Listing(models.Model):
     image_url = models.URLField(null=True, blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="listings")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, default=2, on_delete=models.CASCADE, related_name="listings")
     
     def __str__(self):
         return f"{self.pk}: {self.title}"
