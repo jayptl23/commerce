@@ -5,11 +5,8 @@ from .models import Listing, Category, Bid
 class ListingForm(forms.ModelForm):
     class Meta():
         model = Listing
-        # fields = ["title", "description",
-        #           "image_url", "category"]
-        
-        fields = "__all__"
-
+        fields = ["title", "description",
+                  "image_url", "category"]
         labels = {"image_url": "Image URL"}
 
     # Define a custom widget for the category field
