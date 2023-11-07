@@ -7,8 +7,19 @@
 {% else %}
 <a href="{% url 'add_to_watchlist' user.id listing.id %}">Add to watchlist</a>
 {% endif %}
+
+{% if user.id == listing.owner.id and listing.is_open %}
+<a href="{% url 'close_listing' listing.id %}">Close Listing</a>
+{% endif %}
+
 {% endif %}
 <div>
+    {% if not listing.is_open and listing.winner.id == user.id %}
+    <p>THIS LISTING IS CLOSED. You are the winner!</p>
+    {% elif not listing.is_open %}
+    <p>THIS LISTING IS CLOSED</p>
+    {% endif %}
+
     <h3>{{ listing.title }}</h3>
     <span>Category: {{ listing.category }}</span>
     <p>{{ listing.description }}</p>
@@ -26,7 +37,7 @@
 
     <p>Starting price: ${{ listing.price }}</p>
 
-    {% if user.is_authenticated and user.id != listing.owner.id %}
+    {% if user.is_authenticated and user.id != listing.owner.id and listing.is_open %}
     <h3>Make a bid</h3>
     <form method="post">
         {% csrf_token %}

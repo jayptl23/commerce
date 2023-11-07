@@ -161,3 +161,17 @@ def watchlist(request, user_id):
         listings = user.watchlist.all()
         
     return render(request, "auctions/watchlist.html", { "listings": listings })
+
+def close_listing(request, listing_id):
+    listing = Listing.objects.filter(id=listing_id).first()
+
+    if listing:
+        bid = Bid.objects.filter(listing_id=listing_id).order_by('-amount').first()
+        print("bid object", bid)
+        if bid:
+            listing.winner = bid.bidder
+
+        listing.is_open = False
+        listing.save()
+    
+    return HttpResponseRedirect(reverse("listing", kwargs={ "id": listing_id }))

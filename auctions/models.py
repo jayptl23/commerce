@@ -18,7 +18,9 @@ class Listing(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="listings")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, default=2, on_delete=models.CASCADE, related_name="listings")
-    
+    is_open = models.BooleanField(default=True)
+    winner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, default=None, on_delete=models.CASCADE, related_name="won_listings")
+
     def __str__(self):
         return f"{self.pk}: {self.title}"
 
