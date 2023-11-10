@@ -1,52 +1,90 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-{% if user.is_authenticated %}
-{% if has_listing_in_watchlist %}
-<a href="{% url 'remove_from_watchlist' user.id listing.id %}">Remove from watchlist</a>
-{% else %}
-<a href="{% url 'add_to_watchlist' user.id listing.id %}">Add to watchlist</a>
-{% endif %}
-
-{% if user.id == listing.owner.id and listing.is_open %}
-<a href="{% url 'close_listing' listing.id %}">Close Listing</a>
-{% endif %}
-
-{% endif %}
 <div>
-    {% if not listing.is_open and listing.winner.id == user.id %}
-    <p>THIS LISTING IS CLOSED. You are the winner!</p>
-    {% elif not listing.is_open %}
-    <p>THIS LISTING IS CLOSED</p>
-    {% endif %}
-
-    <h3>{{ listing.title }}</h3>
-    <span>Category: {{ listing.category }}</span>
-    <p>{{ listing.description }}</p>
-    {% if listing.image_url %}
-    <img src="{{ listing.image_url }}" alt="Image of item up for auction." />
-    {% endif %}
-
-    {% if bid %}
-    <p>Current bid: ${{ bid }}</p>
-    {% endif %}
-
-    {% if is_highest_bidder %}
-    <p>You are the highest bidder</p>
-    {% endif %}
-
-    <p>Starting price: ${{ listing.price }}</p>
-
-    {% if user.is_authenticated and user.id != listing.owner.id and listing.is_open %}
-    <h3>Make a bid</h3>
-    <form method="post">
-        {% csrf_token %}
-        {% if error %}
-        <p>{{ error }}</p>
+    {% if user.is_authenticated %}
+    <div class="d-flex justify-content-end mb-4">
+        {% if has_listing_in_watchlist %}
+        <a class="mx-4" href="{% url 'remove_from_watchlist' user.id listing.id %}">Remove from watchlist</a>
+        {% else %}
+        <a href="{% url 'add_to_watchlist' user.id listing.id %}">Add to watchlist</a>
         {% endif %}
-        {{ bid_form }}
-        <input type="submit" value="Place bid">
-    </form>
+
+        {% if user.id == listing.owner.id and listing.is_open %}
+        <a class="mx-4" href="{% url 'close_listing' listing.id %}">Close Listing</a>
+        {% endif %}
+    </div>
     {% endif %}
+
+    <div class="row">
+        <div class="col-8 ">
+            {% if not listing.is_open and listing.winner.id == user.id %}
+            <p class="text-danger font-weight-bold">[CLOSED] <span class="text-success">Congratulations, you are the
+                    winner!</span></p>
+            {% elif not listing.is_open %}
+            <p class="text-danger font-weight-bold">[CLOSED]</p>
+            {% endif %}
+
+            <span class="badge badge-secondary">{{ listing.category }}</span>
+            <h2>{{ listing.title }}</h2>
+            {% if listing.image_url %}
+            <div class="d-flex justify-content-center">
+                <img class="img-fluid" src="{{ listing.image_url }}" alt="Image of item up for auction." width="250"
+                    height="300" />
+            </div>
+            {% endif %}
+            <p class="font-weight-light">{{ listing.description }}</p>
+        </div>
+
+        <div class="col-4 bg-light p-4 align-self-start">
+            <ul class="list-unstyled text-center">
+                <li class="font-weight-light">Starting Price: ${{ listing.price }}</li>
+                {% if bid %}
+                {% if listing.is_open %}
+                <li class="font-weight-bold mt-2">Current Bid: ${{ bid }}</li>
+                {% else %}
+                <li class="font-weight-bold mt-2">Sold For: ${{ bid }}</li>
+                {% endif %}
+                {% endif %}
+                {% if is_highest_bidder %}
+                <li class="font-italic">You are the highest bidder</li>
+                {% endif %}
+
+            </ul>
+
+            {% if user.is_authenticated and user.id != listing.owner.id and listing.is_open %}
+            <h4>Enter Bid</h4>
+            <form method="post">
+                {% csrf_token %}
+
+                {% if error %}
+                <small class="font-weight-bold text-danger">{{ error }}</small>
+                {% endif %}
+
+                <div class="form-group">
+                    {{ bid_form.amount.label_tag }}
+                    {% if bid_form.amount.errors %}
+                    <ul class="list-unstyled">
+                        {% for error in bid_form.amount.errors %}
+                        <li class="font-weight-bold text-danger"><small>{{ error }}</small></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">$</span>
+                        </div>
+                        {{ bid_form.amount }}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <input class="btn btn-primary" type="submit" value="Place Bid">
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

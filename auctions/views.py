@@ -100,6 +100,10 @@ def listing(request, id):
 
     max_bid_instance = bids.filter(amount = max_bid_amount).first()
     
+    is_highest_bidder = False
+    if max_bid_instance:
+        is_highest_bidder = user.id == max_bid_instance.bidder.id
+    
     if request.method == "POST":
         form = BidForm(request.POST)        
         if form.is_valid():
@@ -118,7 +122,7 @@ def listing(request, id):
                     error = "Your bid doesn't beat the largest bid."
                     return render(request, 
                            "auctions/listing-details.html", 
-                           { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form, "error": error }
+                           { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form, "error": error }
                         )
             else:
                 if bid_amount > listing.price:
@@ -129,14 +133,11 @@ def listing(request, id):
                     error = "Please enter a bid greater than the starting price."
                     return render(request, 
                            "auctions/listing-details.html", 
-                           { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form, "error": error }
+                           { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form, "error": error }
                         )
         else:
-            return render(request, "auctions/listing-details.html", { "listing": listing, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form })
+            return render(request, "auctions/listing-details.html", { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form })
 
-    is_highest_bidder = False
-    if max_bid_instance:
-        is_highest_bidder = user.id == max_bid_instance.bidder.id
     return render(request, "auctions/listing-details.html", { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": BidForm() })
 
 def add_to_watchlist(request, user_id, listing_id):
