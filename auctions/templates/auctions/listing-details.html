@@ -33,10 +33,13 @@
                     height="300" />
             </div>
             {% endif %}
-            <p class="font-weight-light">{{ listing.description }}</p>
+            <div class="font-weight-light">
+                <p>{{ listing.description }}</p>
+                <small>Created By: {{ listing.owner.username }}</small>
+            </div>
         </div>
 
-        <div class="col-4 bg-light p-4 align-self-start">
+        <div class="col-4 bg-light p-4 align-self-start rounded">
             <ul class="list-unstyled text-center">
                 <li class="font-weight-light">Starting Price: ${{ listing.price }}</li>
                 {% if bid %}
