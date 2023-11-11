@@ -24,6 +24,15 @@ class Listing(models.Model):
     def __str__(self):
         return f"{self.pk}: {self.title}"
 
+class Comment(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.created_at}"
+
 class User(AbstractUser):
     watchlist = models.ManyToManyField(Listing, blank=True, related_name="watched_by")
 
