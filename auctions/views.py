@@ -3,10 +3,10 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from auctions.forms import ListingForm, BidForm
+from auctions.forms import ListingForm, BidForm, CommentForm
 
 from django.db.models import Max
-from .models import User, Listing, Category, Bid
+from .models import User, Listing, Category, Bid, Comment
 
 
 def index(request):
@@ -90,6 +90,10 @@ def listings_by_category(request, category):
 
 def listing(request, id):
     listing = Listing.objects.filter(pk=id).first()
+    
+    if not listing:
+        return redirect('index')
+
     if not request.user.is_authenticated:
         return render(request, "auctions/listing-details.html", { "listing": listing })
 
@@ -138,7 +142,7 @@ def listing(request, id):
         else:
             return render(request, "auctions/listing-details.html", { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": form })
 
-    return render(request, "auctions/listing-details.html", { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": BidForm() })
+    return render(request, "auctions/listing-details.html", { "listing": listing, "bid": max_bid_amount, "is_highest_bidder": is_highest_bidder, "has_listing_in_watchlist": has_listing_in_watchlist, "bid_form": BidForm(), "comment_form": CommentForm() })
 
 def add_to_watchlist(request, user_id, listing_id):
     if request.user.is_authenticated:
@@ -175,4 +179,12 @@ def close_listing(request, listing_id):
         listing.is_open = False
         listing.save()
     
+    return HttpResponseRedirect(reverse("listing", kwargs={ "id": listing_id }))
+
+def comment(request, listing_id):
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            listing = Listing.objects.get(pk=listing_id)
+            Comment.objects.create(author=request.user, listing=listing, body=form.cleaned_data["body"])
     return HttpResponseRedirect(reverse("listing", kwargs={ "id": listing_id }))

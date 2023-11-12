@@ -92,6 +92,7 @@
 
     <div>
         <h4>Comments</h4>
+        {% if user.is_authenticated and listing.is_open %}
         <form class="mb-4" method="POST" action="{% url 'comment' listing.id %}">
             {% csrf_token %}
             <div class="form-group">
@@ -101,6 +102,7 @@
                 <input class="btn btn-primary" type="submit" value="Submit Comment">
             </div>
         </form>
+        {% endif %}
         {% for comment in listing.comments.all %}
         <div class="border p-3">
             <ul class="list-unstyled d-flex justify-content-between">
@@ -110,7 +112,7 @@
             <p>{{comment.body}}</p>
         </div>
         {% empty %}
-        <p class="text-center">Be the first to say something...</p>
+        <p class="text-center">No comments.</p>
         {% endfor %}
     </div>
 </div>
