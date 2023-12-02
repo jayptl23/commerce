@@ -1,21 +1,43 @@
 {% extends "auctions/layout.html" %}
 
+{% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        let watchlistButton = document.querySelector("button")
+        let canAddToWatchList = watchlistButton.innerHTML.trim() === "Watch"
+
+        document.querySelector("button").onclick = function () {
+            let userId = this.dataset.userId
+            let listingId = this.dataset.listingId
+
+            if (canAddToWatchList) {
+                fetch(`http://localhost:8000/add-to-watchlist/${userId}/${listingId}`)
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.innerHTML = "Unwatch"
+                            canAddToWatchList = false
+                        }
+                    })
+                    .catch(error => console.log("Error:", error))
+
+            } else {
+                fetch(`http://localhost:8000/remove-from-watchlist/${userId}/${listingId}`)
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.innerHTML = "Watch"
+                            canAddToWatchList = true
+                        }
+                    })
+                    .catch(error => console.log("Error:", error))
+            }
+        }
+    })
+</script>
+{% endblock %}
+
 {% block body %}
 <div>
-    {% if user.is_authenticated %}
-    <div class="d-flex justify-content-end mb-4">
-        {% if has_listing_in_watchlist %}
-        <a class="mx-4" href="{% url 'remove_from_watchlist' user.id listing.id %}">Remove from watchlist</a>
-        {% else %}
-        <a href="{% url 'add_to_watchlist' user.id listing.id %}">Add to watchlist</a>
-        {% endif %}
-
-        {% if user.id == listing.owner.id and listing.is_open %}
-        <a class="mx-4" href="{% url 'close_listing' listing.id %}">Close Listing</a>
-        {% endif %}
-    </div>
-    {% endif %}
-
     <div class="row mb-4">
         <div class="col-8 ">
             {% if not listing.is_open and listing.winner.id == user.id %}
@@ -86,6 +108,29 @@
                     <input class="btn btn-primary" type="submit" value="Place Bid">
                 </div>
             </form>
+
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <div class="d-flex justify-content-center align-items-center mt-4">
+                {% if has_listing_in_watchlist %}
+                <button data-user-id="{{ user.id }}" data-listing-id="{{ listing.id }}"
+                    class="btn btn-info font-weight-light">
+                    Unwatch
+                </button>
+                {% endif %}
+
+                {% if not has_listing_in_watchlist and listing.is_open %}
+                <button data-user-id="{{ user.id }}" data-listing-id="{{ listing.id }}"
+                    class="btn btn-info font-weight-light">
+                    Watch
+                </button>
+                {% endif %}
+
+                {% if user.id == listing.owner.id and listing.is_open %}
+                <a class="mx-4" href="{% url 'close_listing' listing.id %}">Close Listing</a>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
     </div>

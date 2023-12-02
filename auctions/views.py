@@ -149,7 +149,9 @@ def add_to_watchlist(request, user_id, listing_id):
         user = User.objects.get(pk=int(user_id))
         listing = Listing.objects.get(pk=int(listing_id))
         user.watchlist.add(listing)
-        return HttpResponseRedirect(reverse("listing", kwargs={ "id": listing.id }))
+        response =  HttpResponse()
+        response["status_code"] = 200
+        return response
     return redirect("index")
 
 def remove_from_watchlist(request, user_id, listing_id):
@@ -157,7 +159,9 @@ def remove_from_watchlist(request, user_id, listing_id):
         user = User.objects.get(pk=int(user_id))
         listing = Listing.objects.get(pk=int(listing_id))
         user.watchlist.remove(listing)
-        return HttpResponseRedirect(reverse("listing", kwargs={ "id": listing.id }))
+        response =  HttpResponse()
+        response["status_code"] = 200
+        return response
     return redirect("index")
 
 def watchlist(request, user_id):
