@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -16,7 +17,6 @@ def index(request):
 
 def login_view(request):
     if request.method == "POST":
-
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
@@ -25,6 +25,9 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
+            next = request.POST["next"]
+            if next:
+                return HttpResponseRedirect(next)
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {
@@ -65,11 +68,8 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-
+@login_required()
 def create_listing_view(request):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("login"))
-
     if request.method == "POST":
         form = ListingForm(request.POST)
         if form.is_valid():
