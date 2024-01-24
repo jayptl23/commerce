@@ -3,33 +3,34 @@
 {% block js %}
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        let watchlistButton = document.getElementById("watchlistButton")
+        if (watchlistButton) {
+            let canAddToWatchList = watchlistButton.innerHTML.trim() === "Watch"
 
-        let watchlistButton = document.querySelector("button")
-        let canAddToWatchList = watchlistButton.innerHTML.trim() === "Watch"
+            watchlistButton.onclick = function () {
+                let userId = this.dataset.userId
+                let listingId = this.dataset.listingId
 
-        document.querySelector("button").onclick = function () {
-            let userId = this.dataset.userId
-            let listingId = this.dataset.listingId
+                if (canAddToWatchList) {
+                    fetch(`http://localhost:8000/add-to-watchlist/${userId}/${listingId}`)
+                        .then(response => {
+                            if (response.status === 200) {
+                                this.innerHTML = "Unwatch"
+                                canAddToWatchList = false
+                            }
+                        })
+                        .catch(error => console.log("Error:", error))
 
-            if (canAddToWatchList) {
-                fetch(`http://localhost:8000/add-to-watchlist/${userId}/${listingId}`)
-                    .then(response => {
-                        if (response.status === 200) {
-                            this.innerHTML = "Unwatch"
-                            canAddToWatchList = false
-                        }
-                    })
-                    .catch(error => console.log("Error:", error))
-
-            } else {
-                fetch(`http://localhost:8000/remove-from-watchlist/${userId}/${listingId}`)
-                    .then(response => {
-                        if (response.status === 200) {
-                            this.innerHTML = "Watch"
-                            canAddToWatchList = true
-                        }
-                    })
-                    .catch(error => console.log("Error:", error))
+                } else {
+                    fetch(`http://localhost:8000/remove-from-watchlist/${userId}/${listingId}`)
+                        .then(response => {
+                            if (response.status === 200) {
+                                this.innerHTML = "Watch"
+                                canAddToWatchList = true
+                            }
+                        })
+                        .catch(error => console.log("Error:", error))
+                }
             }
         }
     })
@@ -113,17 +114,14 @@
 
             {% if user.is_authenticated %}
             <div class="d-flex justify-content-center align-items-center mt-4">
-                {% if has_listing_in_watchlist %}
-                <button data-user-id="{{ user.id }}" data-listing-id="{{ listing.id }}"
+                {% if listing.is_open or has_listing_in_watchlist %}
+                <button id="watchlistButton" data-user-id="{{ user.id }}" data-listing-id="{{ listing.id }}"
                     class="btn btn-info font-weight-light">
-                    Unwatch
-                </button>
-                {% endif %}
-
-                {% if not has_listing_in_watchlist and listing.is_open %}
-                <button data-user-id="{{ user.id }}" data-listing-id="{{ listing.id }}"
-                    class="btn btn-info font-weight-light">
+                    {% if not has_listing_in_watchlist%}
                     Watch
+                    {% else %}
+                    Unwatch
+                    {% endif %}
                 </button>
                 {% endif %}
 
