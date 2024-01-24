@@ -42,10 +42,13 @@
     <div class="row mb-4">
         <div class="col-8 ">
             {% if not listing.is_open and listing.winner.id == user.id %}
-            <p class="text-danger font-weight-bold">[CLOSED] <span class="text-success">Congratulations, you are the
-                    winner!</span></p>
+            <div class="alert alert-success" role="alert">
+                Congratulations, you are the winner!
+            </div>
             {% elif not listing.is_open %}
-            <p class="text-danger font-weight-bold">[CLOSED]</p>
+            <div class="alert alert-danger" role="alert">
+                This listing is closed.
+            </div>
             {% endif %}
 
             <span class="badge badge-secondary">{{ listing.category }}</span>

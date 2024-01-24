@@ -94,15 +94,16 @@ def listing(request, id):
     if not listing:
         return redirect('index')
 
-    if not request.user.is_authenticated:
-        return render(request, "auctions/listing-details.html", { "listing": listing })
-
-    user = User.objects.get(username=request.user.username)
-    has_listing_in_watchlist = user.watchlist.filter(pk=id).exists()
     bids = Bid.objects.filter(listing=listing)
     max_bid_amount = bids.aggregate(Max('amount'))['amount__max']
 
     max_bid_instance = bids.filter(amount = max_bid_amount).first()
+
+    if not request.user.is_authenticated:
+        return render(request, "auctions/listing-details.html", { "listing": listing, "bid": max_bid_amount })
+    
+    user = User.objects.get(username=request.user.username)
+    has_listing_in_watchlist = user.watchlist.filter(pk=id).exists()
     
     is_highest_bidder = False
     if max_bid_instance:
