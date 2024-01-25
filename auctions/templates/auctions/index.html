@@ -2,8 +2,7 @@
 
 {% block body %}
 <div>
-    <h2>Listings</h2>
-
+    <h2 class="text-center">Listings</h2>
     {% for listing in listings %}
     {% include "auctions/listing.html" %}
     {% empty %}

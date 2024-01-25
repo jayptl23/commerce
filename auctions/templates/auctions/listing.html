@@ -1,31 +1,33 @@
-<div class="border mb-2 py-2 px-4">
-    <div class="row">
-        {% if listing.image_url %}
+<div class="border p-4 w-75 mx-auto">
+    <div class="row align-items-center">
         <div class="col-md-2">
-            <!-- Listing Image -->
-            <img class="img-thumbnail img-fluid" src="{{ listing.image_url }}" alt="Image of item up for auction">
-        </div>
-        <div class="col-md-10">
+            {% if listing.image_url %}
+            <img class="img-fluid" src="{{ listing.image_url }}" alt="Image of item up for auction" width="200"
+                height="200">
             {% else %}
-            <div class="col-md-12">
-                {% endif %}
-                <div class="d-flex justify-content-between align-items-center">
-                    <!-- Title and Listing Status -->
-                    <div>
-                        {% if not listing.is_open %}
-                        <span class="text-uppercase text-danger font-weight-bold">Closed</span>
-                        {% endif %}
-                        <h3>
-                            <a href="{% url 'listing' listing.id %}">{{ listing.title }}</a>
-                        </h3>
-                    </div>
-                    <!-- Category -->
-                    <div class="badge badge-secondary">{{ listing.category }}</div>
-                </div>
-                <ul class="list-unstyled">
-                    <li class="font-weight-bold">Starting Price: ${{ listing.price }}</li>
-                    <li class="font-weight-light">{{ listing.description }}</li>
-                </ul>
-            </div>
+            {% load static %}
+            <img class="img-fluid" src="{% static 'auctions/no-image-available.jpg' %}"
+                alt="Image of item up for auction" width="200" height="200">
+            {% endif %}
         </div>
+
+        <div class="col-md-10">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    {% if not listing.is_open %}
+                    <span class="text-uppercase text-danger font-weight-bold">Closed</span>
+                    {% endif %}
+                    <h3>
+                        <a href="{% url 'listing' listing.id %}">{{ listing.title }}</a>
+                    </h3>
+                </div>
+                <div class="badge badge-secondary">{{ listing.category }}</div>
+            </div>
+            <ul class="list-unstyled">
+                <li class="font-weight-bold">Starting Price: ${{ listing.price }}</li>
+                <li class="font-weight-light">{{ listing.description }}</li>
+            </ul>
+        </div>
+
     </div>
+</div>
